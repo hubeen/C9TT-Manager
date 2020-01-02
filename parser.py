@@ -172,7 +172,6 @@ def dy_parsing(ho_i):
         tmp_d = [[] for i in range(all_td[ho_i])]
         tt_arr[i] = tmp_d
 
-    print(all_dy[ho_i])
     for yoil in range(len(all_dy[ho_i]['이채연'])): #월~토
         for arr_i in range(len(tt_arr[yoil])): # [[], [], [], [], [], [], [], [], [], []]
             for name in all_names:
@@ -190,9 +189,7 @@ if __name__ == "__main__":
     fname = argv_str.file
     rname = fname.split(".")[0]
 
-    print(fname)
-    print(rname)
-    wb = mh.load_workbook("./Files/" + fname)
+    wb = mh.load_workbook("/var/www/html/C9TT-Manager/Files/" + fname)
     sl = wb.sheetnames
     get_sheet()
     get_people()
@@ -203,7 +200,7 @@ if __name__ == "__main__":
             set_dy(ho_i)
             sh_parsing(ho_i, i)
             tmp = dy_parsing(ho_i)
-            with open("./TableJson/" + rname + "_" + str(ho_i+1) + "호점(" + str(i+1) + ")주차"  + ".json", "w", encoding='UTF-8-sig') as json_file:
+            with open("/var/www/html/C9TT-Manager/TableJson/" + rname + "_" + str(ho_i+1) + "호점(" + str(i+1) + ")주차"  + ".json", "w", encoding='UTF-8-sig') as json_file:
                 json_file.write(json.dumps(tmp, ensure_ascii=False))
 
             json_file.close()
