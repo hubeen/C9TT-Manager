@@ -5,7 +5,7 @@
 
 '''
 
-import argparse
+import argparse as argp
 import openpyxl as mh
 import json
 name_row = "C"
@@ -85,7 +85,7 @@ def get_sheet():
         if("2호점" in n):
             two_sh.append(n)
 
-def get_people(ar_day):
+def get_people():
     global p_cnt
     global wb
     global max_row
@@ -145,8 +145,6 @@ def sh_parsing(ho_i, sh_i):
     global all_td
     global alpha
 
-    print(all_dy)
-    print(all_names)
     all_td[ho_i] = get_col(ho_i)
     len_n = len(all_names)
     for n in range(max_day):
@@ -162,7 +160,6 @@ def sh_parsing(ho_i, sh_i):
                     else:
                         tmp_v.append(tmp_s)
 
-            print(all_dy[0])
             all_dy[ho_i][all_names[c]].append(tmp_v)
 
 def dy_parsing(ho_i):
@@ -175,6 +172,7 @@ def dy_parsing(ho_i):
         tmp_d = [[] for i in range(all_td[ho_i])]
         tt_arr[i] = tmp_d
 
+    print(all_dy[ho_i])
     for yoil in range(len(all_dy[ho_i]['이채연'])): #월~토
         for arr_i in range(len(tt_arr[yoil])): # [[], [], [], [], [], [], [], [], [], []]
             for name in all_names:
@@ -185,19 +183,28 @@ def dy_parsing(ho_i):
     return tt_arr
 
 if __name__ == "__main__":
-    wb = mh.load_workbook("./Files/example.xlsx")
+    argvp = argp.ArgumentParser()
+    argvp.add_argument("--file", required=True)
+    argv_str = argvp.parse_args()
+
+    fname = argv_str.file
+    rname = fname.split(".")[0]
+
+    print(fname)
+    print(rname)
+    wb = mh.load_workbook("./Files/" + fname)
     sl = wb.sheetnames
     get_sheet()
+    get_people()
 
     for ho_i in range(2):
         max_day = get_day(ho_i)
-        get_people(max_day)
-        for i in range(len(all_sh[0])):
-            set_dy(i)
+        for i in range(len(all_sh[ho_i])):
+            set_dy(ho_i)
             sh_parsing(ho_i, i)
-            with open("test_" + str(i) + ".json", "w", encoding='UTF-8-sig') as json_file:
-                json_file.write(json.dumps(dy_parsing(ho_i), ensure_ascii=False))
+            tmp = dy_parsing(ho_i)
+            with open("./TableJson/" + rname + "_" + str(ho_i+1) + "호점(" + str(i+1) + ")주차"  + ".json", "w", encoding='UTF-8-sig') as json_file:
+                json_file.write(json.dumps(tmp, ensure_ascii=False))
 
-    #dy_parsing(1)
-
+            json_file.close()
     wb.close()
