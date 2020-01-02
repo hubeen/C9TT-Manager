@@ -5,6 +5,7 @@
 
 '''
 
+import argparse
 import openpyxl as mh
 import json
 name_row = "C"
@@ -19,12 +20,12 @@ all_sh = [one_sh, two_sh] #전체 시트에 대한 내용
 one_dy = {} # 1호점 사람들 정보
 two_dy = {} # 2호점 사람들 정보
 all_dy = [one_dy, two_dy] #전체 사람들에 대한 내용
-all_names = []
 max_row = 0
 max_col = 0
 max_day = 0
 one_td = 0
 two_td = 0
+all_names = []
 all_td = [one_td, two_td]
 
 p_cnt = 0
@@ -58,11 +59,11 @@ def get_col(i):
 
     return cnt
 
-def get_day(ho_i, sh_i):
+def get_day(ho_i):
     global wb
     global max_row
     # 시트에 요일 갯수 반환해주는 함수
-    ws = wb[all_sh[ho_i][sh_i]]
+    ws = wb[all_sh[ho_i][0]]
     max_row = ws.max_row
     ret = 0
     day_s = ws["A1":"A" + str(max_row)]
@@ -115,6 +116,17 @@ def get_people(ar_day):
             days = []
             dy[all_names[i]] = days
 
+def set_dy(ho_i):
+    global all_dy
+    global one_dy
+    global two_dy
+    global all_names
+
+    for dy in all_dy:
+        for i in range(len(all_names)):
+            days = []
+            dy[all_names[i]] = days
+
 def sh_parsing(ho_i, sh_i):
     #시트 긁어오는 함수
     #argv 1 : 1호점 시트인지 2호점 시트인지 확인하는 값
@@ -133,9 +145,10 @@ def sh_parsing(ho_i, sh_i):
     global all_td
     global alpha
 
+    print(all_dy)
+    print(all_names)
     all_td[ho_i] = get_col(ho_i)
     len_n = len(all_names)
-    #len_s = len(all_)
     for n in range(max_day):
         tmp_r = get_row(n, len_n) # return int type
         for c in range(len(all_names)):
@@ -148,6 +161,8 @@ def sh_parsing(ho_i, sh_i):
                         tmp_v.append("0")
                     else:
                         tmp_v.append(tmp_s)
+
+            print(all_dy[0])
             all_dy[ho_i][all_names[c]].append(tmp_v)
 
 def dy_parsing(ho_i):
@@ -170,18 +185,19 @@ def dy_parsing(ho_i):
     return tt_arr
 
 if __name__ == "__main__":
-    wb = mh.load_workbook("./sample/example.xlsx")
+    wb = mh.load_workbook("./Files/example.xlsx")
     sl = wb.sheetnames
     get_sheet()
 
-    max_day = get_day(0,0)
-    get_people(max_day)
-    sh_parsing(0, 0)
-    sh_parsing(1, 0)
-
-    with open("test.json", "w", encoding='UTF-8-sig') as json_file:
-        json_file.write(json.dumps(dy_parsing(0), ensure_ascii=False))
+    for ho_i in range(2):
+        max_day = get_day(ho_i)
+        get_people(max_day)
+        for i in range(len(all_sh[0])):
+            set_dy(i)
+            sh_parsing(ho_i, i)
+            with open("test_" + str(i) + ".json", "w", encoding='UTF-8-sig') as json_file:
+                json_file.write(json.dumps(dy_parsing(ho_i), ensure_ascii=False))
 
     #dy_parsing(1)
 
-wb.close()
+    wb.close()
