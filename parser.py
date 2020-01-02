@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 '''
     made by mhubeen (문승현)
 
